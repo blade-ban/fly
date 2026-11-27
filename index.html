@@ -37,7 +37,11 @@ button:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px sol
 #frame{position:relative;width:360px;height:600px;border:2px solid var(--line);border-radius:6px;overflow:hidden;background:#070a1c}
 .phone #frame{border:0;border-radius:0}
 canvas{display:block;width:100%;height:100%}
-.hudbtns{position:absolute;right:8px;bottom:max(8px,env(safe-area-inset-bottom));display:flex;gap:6px;z-index:3;opacity:.85}
+.hudbtns{position:absolute;left:8px;bottom:max(8px,env(safe-area-inset-bottom));display:flex;gap:6px;z-index:3;opacity:.85}
+.firebtn{position:absolute;right:max(14px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));width:88px;height:88px;border-radius:50%;z-index:3;border:3px solid rgba(255,220,160,.75);background:radial-gradient(circle at 40% 35%,rgba(240,110,90,.85),rgba(150,35,25,.85));color:#fff;font-family:var(--hanja);font-weight:900;font-size:32px;line-height:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;box-shadow:0 4px 0 rgba(80,15,10,.8),0 6px 16px rgba(0,0,0,.4);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;opacity:.88}
+.firebtn small{font-family:var(--ui);font-size:11px;font-weight:700;letter-spacing:.1em}
+.firebtn.on{transform:translateY(3px) scale(.96);box-shadow:0 1px 0 rgba(80,15,10,.8),0 0 22px rgba(255,170,90,.8);opacity:1}
+.firebtn[hidden]{display:none}
 .hudbtns button{background:rgba(20,27,61,.82);border:1px solid var(--line);border-radius:6px;padding:7px 11px;font-size:13px;touch-action:manipulation}
 .hudbtns[hidden]{display:none}
 
@@ -86,7 +90,7 @@ textarea{width:100%;min-height:200px;background:var(--panel);border:1px solid va
 .tabs{display:flex;gap:6px;flex-wrap:wrap}
 .back{align-self:flex-start;background:transparent;border:1px solid var(--line);border-radius:4px;padding:6px 12px;font-size:13px}
 .msg{font-size:13px;color:var(--dan-gold);min-height:1.3em;margin:0}
-.touchhint{position:absolute;left:0;right:0;bottom:60px;text-align:center;font-size:12px;color:var(--muted);pointer-events:none;z-index:2}
+.touchhint{position:absolute;left:20px;right:110px;bottom:62px;text-align:center;font-size:12px;color:var(--muted);pointer-events:none;z-index:2}
 .touch .keys{display:none}
 .tnote{display:none}
 .touch .tnote{display:block}
@@ -123,6 +127,11 @@ textarea{width:100%;min-height:200px;background:var(--panel);border:1px solid va
 .pc.on{background:#3b2f12;border-color:var(--dan-gold)}
 .pc.on .r{color:#f3dc9c}
 .pcount{font-size:13px;color:#7cf0b0;margin:8px 0 0}
+.chosen{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;max-height:150px;overflow:auto}
+.chosen button{background:#3b2f12;border:1px solid var(--dan-gold);border-radius:999px;padding:3px 9px 3px 10px;font-size:13px;color:#f3dc9c;display:flex;align-items:center;gap:5px}
+.chosen button b{font-family:var(--hanja);font-size:17px;color:var(--paper)}
+.chosen button i{font-style:normal;color:var(--muted);font-size:12px}
+.ptab.sel{border-style:dashed}
 details.manual{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
 details.manual summary{cursor:pointer;font-size:13.5px;color:var(--text)}
 .steps{font-size:12.5px;color:var(--muted);line-height:1.75;margin:8px 0 0;padding-left:18px}
@@ -225,7 +234,8 @@ details.manual summary{cursor:pointer;font-size:13.5px;color:var(--text)}
       <button id="sndBtn" aria-pressed="true">소리 켜짐</button>
       <button id="pauseBtn">멈춤</button>
     </div>
-    <div class="touchhint" id="touchhint" hidden>화면을 누른 채 좌우로 끌면 움직이고 자동으로 쏩니다</div>
+    <button class="firebtn" id="fireBtn" hidden aria-label="발사">發<small>발사</small></button>
+    <div class="touchhint" id="touchhint" hidden></div>
 
     <!-- 출격 준비 -->
     <section class="layer" id="menu">
@@ -265,7 +275,7 @@ details.manual summary{cursor:pointer;font-size:13.5px;color:var(--text)}
         <kbd>P / Esc</kbd><span>잠깐 멈춤</span>
         <kbd>터치</kbd><span>화면을 누른 채 끌면 움직이고 자동으로 쏩니다</span>
       </div>
-      <p class="note tnote"><b>조종법</b> — 화면 아무 곳이나 손가락으로 누른 채 끌면 전투기가 손가락을 따라오고, 누르고 있는 동안 자동으로 쏩니다. 전투기는 손가락보다 조금 위에 있어서 가리지 않아요.</p>
+      <p class="note tnote" id="touchNote"></p>
       <p class="note" id="ruleNote"><b>한 세트는 5분</b>입니다. 정답 표적을 맞힐 때마다 <b>10점</b>이 쌓입니다. 오답 표적은 총알을 튕겨 내고 연속 명중이 끊깁니다. 정답 표적이 바닥까지 내려오거나 표적·적탄에 부딪히면 기체를 하나 잃습니다(처음 3대). 여덟 개를 맞힐 때마다 스테이지가 오르고, 넷째 스테이지마다 거대 폭격기가 나타납니다. 출격할 때마다 문제 순서와 보기가 새로 섞입니다.</p>
     </section>
 
@@ -331,6 +341,7 @@ details.manual summary{cursor:pointer;font-size:13.5px;color:var(--text)}
         </div>
         <div class="pgrid" id="pGrid"></div>
         <p class="pcount" id="edInfo"></p>
+        <div class="chosen" id="pChosen"></div>
         <p class="eerr" id="edErr"></p>
         <div class="ebtns">
           <button class="ebtn" id="edAddC">지금 탭의 한자 20자 무작위로 고르기</button>
@@ -2829,7 +2840,7 @@ const KEY = 'hanja-squadron-v1';
 const CODE_GS = "/**\n * 漢字飛行隊 — 학생 결과 모으기 · 반 순위 (Google Apps Script)\n *\n * 설치\n *  1) 구글 스프레드시트를 새로 만들고  확장 프로그램 → Apps Script 를 엽니다.\n *  2) 원래 있던 글을 모두 지우고 이 파일 내용을 그대로 붙여 넣은 뒤,\n *     아래 PASSWORD 를 선생님만 아는 비밀번호로 바꾸고 저장합니다.\n *  3) 배포 → 새 배포 → 유형: 웹 앱\n *       - 다음 사용자 인증 정보로 실행: 나\n *       - 액세스 권한이 있는 사용자: 모든 사용자\n *     → 배포 → 권한 허용 → 나오는 '웹 앱 URL'(…/exec)을 복사해\n *       게임의 '학생용 링크 만들기' 화면 4번 칸에 붙여 넣습니다.\n *  4) 이 코드를 고친 뒤에는 배포 → 배포 관리 → 연필(수정) → 버전: 새 버전 → 배포\n *     (그래야 주소가 그대로 유지됩니다.)\n *\n * 시트 '기록' 에 학생 한 판마다 한 줄, 시트 '회차' 에 순위 판(회차)이 쌓입니다.\n */\nconst PASSWORD = '1234';   // ← 순위 화면 비밀번호. 꼭 바꾸세요!\n\nconst SH_LOG = '기록', SH_ROUND = '회차';\nconst LOG_HEAD = ['시각','게임ID','게임제목','회차','학번','이름','점수','명중','정확도(%)','최대연속','오답·놓침','비행시간(초)','임무','끝난 이유','기록ID','미리보기','마감후'];\nconst ROUND_HEAD = ['게임ID','회차','시작시각','상태','순위 규칙'];\nconst NO_ROUND = '(회차 없음)';\n\nfunction doGet(e){\n  const p = (e && e.parameter) || {};\n  try{\n    switch(p.action){\n      case 'ping':   return out_({ ok:true, app:'hanja-fly', v:1 });\n      case 'submit': return out_(submit_(p));\n      case 'rank':   return out_(myRank_(p));\n      case 'admin':\n        if(String(p.pw || '') !== PASSWORD) return out_({ ok:false, err:'pw' });\n        return out_(admin_(p));\n    }\n    return out_({ ok:false, err:'bad' });\n  }catch(err){\n    return out_({ ok:false, err:String(err && err.message || err) });\n  }\n}\n\nfunction out_(o){ return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }\nfunction sheet_(name, head){\n  const ss = SpreadsheetApp.getActiveSpreadsheet();\n  let sh = ss.getSheetByName(name);\n  if(!sh){ sh = ss.insertSheet(name); sh.appendRow(head); sh.setFrozenRows(1); }\n  return sh;\n}\nfunction rows_(sh){ const n = sh.getLastRow(); if(n < 2) return []; return sh.getRange(2, 1, n - 1, sh.getLastColumn()).getValues(); }\nfunction txt_(v, max){ let s = String(v == null ? '' : v).replace(/[\\r\\n\\t]/g, ' ').trim().slice(0, max || 40); if(/^[=+\\-@]/.test(s)) s = \"'\" + s; return s; }\nfunction num_(v){ const n = Number(v); return isFinite(n) ? n : 0; }\nfunction time_(v){ return v instanceof Date ? v.getTime() : (new Date(v)).getTime() || 0; }\n\n/* 게임의 마지막 회차 (진행 중이거나 마감됨) */\nfunction curRound_(game){\n  const rs = rows_(sheet_(SH_ROUND, ROUND_HEAD));\n  let cur = null;\n  rs.forEach((r, i) => { if(String(r[0]) === game) cur = { row:i + 2, name:String(r[1]), start:r[2], open:String(r[3]) === '진행', rule:String(r[4] || 'first') === 'best' ? 'best' : 'first' }; });\n  return cur;\n}\n\nfunction submit_(p){\n  const game = txt_(p.game, 40), no = txt_(p.no, 12), name = txt_(p.name, 12), id = txt_(p.id, 40);\n  if(!game || !no || !name || !id) return { ok:false, err:'bad' };\n  const lock = LockService.getScriptLock();\n  lock.waitLock(15000);\n  try{\n    const sh = sheet_(SH_LOG, LOG_HEAD);\n    const n = sh.getLastRow();\n    if(n >= 2){\n      const from = Math.max(2, n - 3000);\n      const ids = sh.getRange(from, 15, n - from + 1, 1).getValues();\n      for(let i = 0; i < ids.length; i++) if(String(ids[i][0]) === id) return Object.assign({ ok:true, dup:true }, rankInfo_(game, no));\n    }\n    const cur = curRound_(game);\n    const pv = p.pv === '1' ? 'Y' : '';\n    const round = cur ? cur.name : NO_ROUND;\n    const late = cur && !cur.open ? 'Y' : '';\n    sh.appendRow([new Date(), game, txt_(p.title, 40), round, no, name, num_(p.score), num_(p.correct), num_(p.acc), num_(p.combo), num_(p.miss), num_(p.secs), txt_(p.mode, 20), txt_(p.reason, 20), id, pv, late]);\n    SpreadsheetApp.flush();\n    const info = rankInfo_(game, no);\n    info.ok = true; info.thisLate = !!late; info.thisPreview = !!pv;\n    return info;\n  } finally { lock.releaseLock(); }\n}\n\n/* 학생 한 명의 현재 회차 순위 */\nfunction rankInfo_(game, no){\n  const cur = curRound_(game);\n  if(!cur) return { round:null, open:false };\n  const R = ranking_(game, cur.name, cur.rule);\n  const me = R.list.filter(x => x.no === no)[0];\n  return { round:cur.name, open:cur.open, rule:cur.rule, total:R.list.length, rank:me ? me.rank : 0, myScore:me ? me.score : null, myId:me ? me.id : null };\n}\nfunction myRank_(p){ const game = txt_(p.game, 40), no = txt_(p.no, 12); if(!game || !no) return { ok:false, err:'bad' }; return Object.assign({ ok:true }, rankInfo_(game, no)); }\n\n/* 순위 계산: 학번마다 한 판 (first = 그 회차 첫 판, best = 최고 점수) */\nfunction ranking_(game, round, rule){\n  const rs = rows_(sheet_(SH_LOG, LOG_HEAD));\n  const by = {};\n  let late = 0, plays = 0;\n  rs.forEach(r => {\n    if(String(r[1]) !== game || String(r[3]) !== round || r[15] === 'Y') return;\n    if(r[16] === 'Y'){ late++; return; }\n    plays++;\n    const no = String(r[4]).replace(/^'/, '');\n    const e = { t:time_(r[0]), no, name:String(r[5]).replace(/^'/, ''), score:num_(r[6]), correct:num_(r[7]), acc:num_(r[8]), combo:num_(r[9]), miss:num_(r[10]), secs:num_(r[11]), mode:String(r[12]), id:String(r[14]) };\n    const o = by[no];\n    if(!o){ by[no] = e; return; }\n    if(rule === 'best'){\n      if(e.score > o.score || (e.score === o.score && e.acc > o.acc)) by[no] = e;\n    } else if(e.t < o.t) by[no] = e;\n  });\n  const list = Object.keys(by).map(k => by[k]);\n  list.sort((a, b) => b.score - a.score || b.acc - a.acc || b.correct - a.correct || a.t - b.t);\n  list.forEach((x, i) => { x.rank = (i > 0 && list[i-1].score === x.score && list[i-1].acc === x.acc) ? list[i-1].rank : i + 1; });\n  return { list, late, plays };\n}\n\nfunction admin_(p){\n  const sub = p.sub, game = txt_(p.game, 40);\n  if(sub === 'games'){\n    const g = {};\n    rows_(sheet_(SH_LOG, LOG_HEAD)).forEach(r => { const id = String(r[1]); if(!id) return; const o = g[id] || (g[id] = { id, title:'', n:0, last:0 }); o.n++; o.title = String(r[2]) || o.title; o.last = Math.max(o.last, time_(r[0])); });\n    rows_(sheet_(SH_ROUND, ROUND_HEAD)).forEach(r => { const id = String(r[0]); if(!id) return; const o = g[id] || (g[id] = { id, title:'', n:0, last:0 }); o.last = Math.max(o.last, time_(r[2])); });\n    if(p.title && game && g[game] && !g[game].title) g[game].title = txt_(p.title, 40);\n    return { ok:true, games:Object.keys(g).map(k => g[k]).sort((a, b) => b.last - a.last) };\n  }\n  if(!game) return { ok:false, err:'bad' };\n  const rsh = sheet_(SH_ROUND, ROUND_HEAD);\n  const lock = LockService.getScriptLock();\n  lock.waitLock(15000);\n  try{\n    if(sub === 'start'){\n      const name = txt_(p.name, 30), rule = p.rule === 'best' ? 'best' : 'first';\n      if(!name) return { ok:false, err:'name' };\n      const rs = rows_(rsh);\n      if(rs.some(r => String(r[0]) === game && String(r[1]) === name)) return { ok:false, err:'dup' };\n      rs.forEach((r, i) => { if(String(r[0]) === game && String(r[3]) === '진행') rsh.getRange(i + 2, 4).setValue('마감'); });\n      rsh.appendRow([game, name, new Date(), '진행', rule]);\n      SpreadsheetApp.flush();\n    } else if(sub === 'close' || sub === 'reopen'){\n      const cur = curRound_(game);\n      if(cur) rsh.getRange(cur.row, 4).setValue(sub === 'close' ? '마감' : '진행');\n      SpreadsheetApp.flush();\n    } else if(sub === 'rule'){\n      const cur = curRound_(game);\n      if(cur) rsh.getRange(cur.row, 5).setValue(p.rule === 'best' ? 'best' : 'first');\n      SpreadsheetApp.flush();\n    }\n  } finally { lock.releaseLock(); }\n  // 회차 목록 + 순위\n  const rounds = rows_(rsh).filter(r => String(r[0]) === game).map(r => ({ name:String(r[1]), start:time_(r[2]), open:String(r[3]) === '진행', rule:String(r[4] || 'first') }));\n  const cur = curRound_(game);\n  const want = txt_(p.round, 30) || (cur ? cur.name : '');\n  const rinfo = rounds.filter(r => r.name === want)[0] || null;\n  const R = want ? ranking_(game, want, rinfo ? (rinfo.rule === 'best' ? 'best' : 'first') : 'first') : { list:[], late:0, plays:0 };\n  return { ok:true, rounds, current:cur ? cur.name : null, round:want || null, open:rinfo ? rinfo.open : false, rule:rinfo ? rinfo.rule : 'first', list:R.list, late:R.late, plays:R.plays };\n}\n";
 const IS_TOUCH = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0 && matchMedia('(pointer:coarse)').matches);
 if(IS_TOUCH) document.documentElement.classList.add('touch');
-const S = { mode:'h2c', range:'basic', speed:1, auto:false, sound:true, best:{}, custom:'' };
+const S = { mode:'h2c', range:'basic', speed:1, auto:false, touchFire:'button', sound:true, best:{}, custom:'' };
 try{ Object.assign(S, JSON.parse(localStorage.getItem(KEY) || '{}')); }catch(e){}
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 
@@ -2915,14 +2926,18 @@ function renderMenu(){
   }).join('');
   $('#speeds').innerHTML = Object.entries(SPEEDS).map(([k,l]) => `<button class="pill ${+k===+S.speed?'on':''}" data-speed="${k}">${l}</button>`).join('');
   $('#speeds').hidden = !!(TEACH && TEACH.sp);
-  $('#fires').hidden = IS_TOUCH;
-  $('#speedHead').textContent = (TEACH && TEACH.sp) ? `속도 · ${SPEEDS[TEACH.sp]} (선생님이 정함)` : (IS_TOUCH ? '속도' : '속도 · 사격');
-  $('#speedBox').hidden = !!(TEACH && TEACH.sp) && IS_TOUCH;
-  $('#fires').innerHTML = `<button class="pill ${!S.auto?'on':''}" data-auto="0">Space로 쏘기</button><button class="pill ${S.auto?'on':''}" data-auto="1">자동 사격</button>`;
+  $('#speedHead').textContent = (TEACH && TEACH.sp) ? `속도 · ${SPEEDS[TEACH.sp]} (선생님이 정함) · 사격` : '속도 · 사격';
+  $('#fires').innerHTML = IS_TOUCH
+    ? `<button class="pill ${S.touchFire!=='auto'?'on':''}" data-tf="button">發 버튼을 눌러 쏘기</button><button class="pill ${S.touchFire==='auto'?'on':''}" data-tf="auto">끌면 자동으로 쏘기</button>`
+    : `<button class="pill ${!S.auto?'on':''}" data-auto="0">Space로 쏘기</button><button class="pill ${S.auto?'on':''}" data-auto="1">자동 사격</button>`;
+  $('#touchNote').innerHTML = S.touchFire === 'auto'
+    ? '<b>조종법</b> — 화면을 누른 채 끌면 전투기가 손가락을 따라오고, <b>누르고 있는 동안 자동으로 쏩니다.</b> 오답 표적 앞에서는 손가락을 떼세요.'
+    : '<b>조종법</b> — 화면을 누른 채 끌면 전투기가 움직이기만 하고 <b>쏘지 않습니다.</b> 정답 표적 아래로 가서 오른쪽 아래 <b>發 버튼</b>을 누르고 있으면 쏩니다. (왼손으로 움직이고 오른손으로 쏘기)';
   document.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => { S.mode = b.dataset.mode; save(); sfx.ui(); renderMenu(); });
   document.querySelectorAll('[data-range]').forEach(b => b.onclick = () => { S.range = b.dataset.range; if(!modeAvailable(S.mode)) S.mode = Object.keys(MODES).find(modeAvailable) || S.mode; save(); sfx.ui(); renderMenu(); });
   document.querySelectorAll('[data-speed]').forEach(b => b.onclick = () => { S.speed = +b.dataset.speed; save(); sfx.ui(); renderMenu(); });
   document.querySelectorAll('[data-auto]').forEach(b => b.onclick = () => { S.auto = b.dataset.auto === '1'; save(); sfx.ui(); renderMenu(); });
+  document.querySelectorAll('[data-tf]').forEach(b => b.onclick = () => { S.touchFire = b.dataset.tf; save(); sfx.ui(); renderMenu(); });
   const bk = bestKey();
   $('#bestLine').textContent = S.best[bk] ? `${TEACH ? '이 임무' : '이 임무·범위'} 최고 점수 ${S.best[bk].toLocaleString()}점` : '아직 기록이 없습니다';
   renderPilot();
@@ -3251,8 +3266,11 @@ function startGame(){
   };
   document.querySelectorAll('.layer').forEach(l => l.hidden = true);
   $('#hudbtns').hidden = false; sndLabel();
-  $('#touchhint').hidden = !('ontouchstart' in window);
-  setTimeout(() => $('#touchhint').hidden = true, 4000);
+  const btnMode = IS_TOUCH && S.touchFire !== 'auto';
+  $('#fireBtn').hidden = !btnMode; fireHeld = false; $('#fireBtn').classList.remove('on');
+  $('#touchhint').textContent = btnMode ? '끌어서 움직이고, 오른쪽 아래 發 버튼을 누르고 있으면 쏩니다' : '화면을 누른 채 끌면 움직이고 자동으로 쏩니다';
+  $('#touchhint').hidden = !IS_TOUCH;
+  setTimeout(() => $('#touchhint').hidden = true, 5000);
   sfx.start(); engineOn();
   wakeOn();
   cv.focus();
@@ -3322,14 +3340,25 @@ window.addEventListener('keydown', e => {
   if((e.key === 'p' || e.key === 'P' || e.key === 'Escape') && G){ if(G.state === 'play') pauseGame(); else if(G.state === 'pause') resumeGame(); }
 });
 window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
-window.addEventListener('blur', () => { for(const k in keys) keys[k] = false; if(G && G.state === 'play') pauseGame(); });
+window.addEventListener('blur', () => { for(const k in keys) keys[k] = false; fireHeld = false; if(G && G.state === 'play') pauseGame(); });
+/* 발사 버튼 (휴대폰) — 누르고 있는 동안 쏨. 다른 손가락으로 화면을 끄는 것과 따로 동작 */
+let fireHeld = false;
+(() => {
+  const fb = $('#fireBtn');
+  const on = e => { e.preventDefault(); if(!G || G.state !== 'play') return; fireHeld = true; fb.classList.add('on'); try{ fb.setPointerCapture(e.pointerId); }catch(_){} audio(); };
+  const off = () => { fireHeld = false; fb.classList.remove('on'); };
+  fb.addEventListener('pointerdown', on);
+  ['pointerup','pointercancel','lostpointercapture'].forEach(ev => fb.addEventListener(ev, off));
+  fb.addEventListener('contextmenu', e => e.preventDefault());
+  fb.addEventListener('touchstart', e => e.preventDefault(), { passive:false });
+})();
 let touch = null;
 cv.addEventListener('pointerdown', e => { if(!G || G.state !== 'play') return; touch = toLogical(e); try{ cv.setPointerCapture(e.pointerId); }catch(_){} audio(); });
 cv.addEventListener('pointermove', e => { if(touch) touch = toLogical(e); });
 ['pointerup','pointercancel'].forEach(ev => cv.addEventListener(ev, () => { touch = null; }));
 function toLogical(e){ const r = cv.getBoundingClientRect(); return { x:(e.clientX - r.left)/r.width*W, y:(e.clientY - r.top)/r.height*H }; }
 
-function pauseGame(){ G.state = 'pause'; engineOff(); touch = null; showLayer('pause'); }
+function pauseGame(){ G.state = 'pause'; engineOff(); touch = null; fireHeld = false; $('#fireBtn').classList.remove('on'); showLayer('pause'); }
 function resumeGame(){ G.state = 'play'; document.querySelectorAll('.layer').forEach(l => l.hidden = true); engineOn(); cv.focus(); }
 $('#pauseBtn').onclick = () => { if(G && G.state === 'play') pauseGame(); };
 $('#resumeBtn').onclick = resumeGame;
@@ -3381,7 +3410,8 @@ function update(dt){
 
   // 사격 (날개 뿌리 두 곳에서 예광탄)
   G.fireCd -= dt;
-  const firing = S.auto || touch || keys[' '];
+  // 휴대폰: 기본은 發 버튼을 누를 때만 쏨 (끌기 = 이동만). 컴퓨터 마우스 끌기는 예전처럼 쏨.
+  const firing = (!IS_TOUCH && S.auto) || keys[' '] || fireHeld || (touch && (!IS_TOUCH || S.touchFire === 'auto'));
   if(firing && G.fireCd <= 0){
     G.fireCd = .15;
     G.bullets.push({ x:G.px - 8, y:G.py - 18 }, { x:G.px + 8, y:G.py - 18 });
@@ -3756,7 +3786,7 @@ function drawHud(time){
 function endGame(){
   if(!G || G.state === 'done') return;
   G.state = 'done'; engineOff(); wakeOff();
-  $('#hudbtns').hidden = true;
+  $('#hudbtns').hidden = true; $('#fireBtn').hidden = true; fireHeld = false;
   const total = G.correct + G.wrongHits + G.misses;
   const acc = total ? Math.round(G.correct/total*100) : 0;
   const used = Math.round(LIMIT - G.timeLeft), mm = Math.floor(used/60), ss = String(used%60).padStart(2,'0');
@@ -3904,8 +3934,11 @@ const PTABS = { cm:['중학교 900자', C_MID], ch:['고등학교 900자', C_HIG
 function edSelMap(){ const m = new Map(); $('#edList').value.split(/\r?\n/).forEach(l => { const t = l.trim(); const k = t.split(/[\s\t]+/)[0]; if(k && !m.has(k)) m.set(k, t); }); return m; }
 function edRenderPicker(){
   const sel = edSelMap();
-  $('#pTabs').innerHTML = Object.entries(PTABS).map(([k, [l, a]]) => { const n = a.filter(x => sel.has(x.h)).length; return `<button class="ptab ${pTab === k ? 'on' : ''}" data-pt="${k}">${l} ${n ? '<b style="color:#f0c24b">' + n + '</b>/' : ''}${a.length}</button>`; }).join('');
-  $('#pSrc').innerHTML = (pTab === 'cm' || pTab === 'ch') ? '한문 교육용 기초한자 1,800자 · 출처: 위키낱말사전 「부록:한문 교육용 기초 한자 1800」(CC BY-SA). 음이 여럿인 글자는 대표 훈음 하나만 있어요. 같은 한자는 어느 탭에서 골라도 한 번만 들어갑니다.' : '원래 게임에 들어 있던 목록입니다. 1,800자 탭과 훈음 표현이 다른 글자가 있어요(예: 山 메 산 / 뫼 산).';
+  const selItems = () => [...sel.values()].map(l => { const m = l.match(/^(\S+)[\s\t]+(.+)$/); return m ? { h:m[1], r:m[2].trim() } : null; }).filter(Boolean);
+  PTABS.sel = ['고른 것만 보기', selItems()];
+  $('#pTabs').innerHTML = Object.entries(PTABS).map(([k, [l, a]]) => { if(k === 'sel') return `<button class="ptab sel ${pTab === k ? 'on' : ''}" data-pt="sel">✔ 고른 것만 보기 ${a.length}</button>`; const n = a.filter(x => sel.has(x.h)).length; return `<button class="ptab ${pTab === k ? 'on' : ''}" data-pt="${k}">${l} ${n ? '<b style="color:#f0c24b">' + n + '</b>/' : ''}${a.length}</button>`; }).join('');
+  $('#pChosen').innerHTML = PTABS.sel[1].map(x => `<button data-h="${esc(x.h)}" data-r="${esc(x.r)}" title="눌러서 빼기"><b>${esc(x.h)}</b>${esc(x.r)} <i>✕</i></button>`).join('');
+  $('#pSrc').innerHTML = pTab === 'sel' ? '지금까지 고른 한자·한자어입니다. 누르면 빠집니다.' : (pTab === 'cm' || pTab === 'ch') ? '한문 교육용 기초한자 1,800자 · 출처: 위키낱말사전 「부록:한문 교육용 기초 한자 1800」(CC BY-SA). 음이 여럿인 글자는 대표 훈음 하나만 있어요. 같은 한자는 어느 탭에서 골라도 한 번만 들어갑니다.' : '원래 게임에 들어 있던 목록입니다. 1,800자 탭과 훈음 표현이 다른 글자가 있어요(예: 山 메 산 / 뫼 산).';
   const q = $('#pSearch').value.trim();
   const arr = PTABS[pTab][1].filter(x => !q || x.h.includes(q) || x.r.includes(q));
   $('#pGrid').innerHTML = arr.map(x => `<button class="pc ${sel.has(x.h) ? 'on' : ''}" data-h="${esc(x.h)}" data-r="${esc(x.r)}"><span class="h">${esc(x.h)}</span><span class="r">${esc(x.r)}</span></button>`).join('') || '<p class="ehelp">찾는 글자가 없어요. 아래 ‘직접 넣기’를 써 주세요.</p>';
@@ -3993,6 +4026,7 @@ function initEditor(){
   $('#edRankOn').checked = d ? d.rankOn !== false : true;
   $('#pTabs').onclick = e => { const b = e.target.closest('[data-pt]'); if(b){ pTab = b.dataset.pt; edRenderPicker(); } };
   $('#pGrid').onclick = e => { const b = e.target.closest('.pc'); if(b) edToggle([{ h:b.dataset.h, r:b.dataset.r }]); };
+  $('#pChosen').onclick = e => { const b = e.target.closest('button'); if(b) edToggle([{ h:b.dataset.h, r:b.dataset.r }], false); };
   $('#pSearch').oninput = edRenderPicker;
   const visible = () => { const q = $('#pSearch').value.trim(); return PTABS[pTab][1].filter(x => !q || x.h.includes(q) || x.r.includes(q)); };
   $('#pAll').onclick = () => { const v = visible(); if(v.length > 120 && !confirm(`${v.length}개를 모두 고를까요? (많으면 링크·QR이 길어져요)`)) return; edToggle(v, true); };
